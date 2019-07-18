@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="board">
+	<select id="selectBoardList" resultType="hashmap"
+		parameterType="hashmap">
+        <![CDATA[
+         SELECT
+         		IDX,
+                TITLE,
+                HIT_CNT,
+                CREA_DATE,
+                AREA,
+                CREA_ID,
+                TYPE
+            FROM
+                one_board
+            WHERE
+                DEL_CHK = 'N'
+            ORDER BY IDX desc
+        ]]>
+	</select>
+	<select id="selectBoardTypeList" resultType="hashmap"
+		parameterType="hashmap">
+        <![CDATA[
+            SELECT
+                IDX,
+                TITLE,
+                HIT_CNT,
+                AREA,
+                TYPE,
+                CREA_DATE,
+                CREA_ID
+            FROM
+                one_board
+            WHERE
+                DEL_CHK = 'N'
+                AND
+                TYPE = #{ type}
+            ORDER BY IDX DESC
+        ]]>
+	</select>
+	<select id="selectBoardAreaList" resultType="hashmap"
+		parameterType="hashmap">
+        <![CDATA[
+            SELECT
+                IDX,
+                TITLE,
+                HIT_CNT,
+                AREA,
+                TYPE,
+                CREA_DATE,
+                CREA_ID
+            FROM
+                one_board
+            WHERE
+                DEL_CHK = 'N'
+                AND
+                AREA = #{ area}
+            ORDER BY IDX DESC
+        ]]>
+	</select>
+	<select id="selectMyBoardList" resultType="hashmap"
+		parameterType="hashmap">
+        <![CDATA[
+            SELECT
+                IDX,
+                TITLE,
+                CONTENTS,
+                AREA,
+                TYPE,
+                
+                PERFORMTIME,
+                PERFORMDATE,
+                PERFORMLOCATION,
+                HIT_CNT,
+                CREA_ID,
+                CREA_DATE
+            FROM
+                one_board
+            WHERE
+            	DEL_CHK = 'N'
+                AND
+                CREA_ID = #{ id}
+            ORDER BY IDX DESC
+        ]]>
+	</select>
+	<select id="selectMyReplyList" resultType="hashmap"
+		parameterType="hashmap">
+        <![CDATA[
+            SELECT
+                COUNT,
+            	IDX,
+            	ID,              
+                CHK,
+                SUBJECT,
+                TITLE,
+                CONTENT,
+             
+                BOARDDATE
+            FROM
+                reply_board
+           WHERE
+                CHK = 'N'
+                AND
+               	ID = #{ id}
+               	ORDER BY COUNT desc
+        ]]>
+	</select>
+	<select id="selectMyReservationList" resultType="hashmap"
+		parameterType="hashmap">
+        <![CDATA[
+            SELECT
+            	num,
+                id,
+                name,
+                area,
+                subject,
+                performtime,
+                performdate,
+                performlocation,
+                type,
+                phone,
+                card,
+                chk,
+                date
+            FROM
+                reservation_board
+           WHERE
+                chk = 'N'
+                AND
+               	ID = #{ id}
+               	ORDER BY num desc
+        ]]>
+	</select>
+
+	<insert id="insertBoard" parameterType="hashmap">
+        <![CDATA[
+            INSERT INTO one_board
+            (
+                TITLE,
+                CONTENTS,
+                AREA,
+                TYPE,
+                
+                PERFORMTIME,
+                PERFORMDATE,
+                PERFORMLOCATION,
+                HIT_CNT,
+                DEL_CHK,
+                CREA_DATE,
+                CREA_ID
+            )
+            VALUES
+            (
+                #{ title},
+                #{ contents},
+                #{ area},
+                #{ type},
+               
+                #{ performtime},
+                #{ performdate},
+                #{ performlocation},
+                0,
+                'N',
+                SYSDATE(),
+                #{ crea_id}
+            )
+        ]]>
+	</insert>
+	<insert id="insertFile" parameterType="hashmap"> 
+    <![CDATA[ 
+    INSERT INTO board_file 
+    ( 
+    BOARD_TITLE,
+    ORIGINAL_FILE_NAME, 
+    STORED_FILE_NAME, 
+    FILE_SIZE, 
+    CREA_ID 
+    ) 
+    VALUES (
+    #{BOARD_TITLE}, 
+    #{ORIGINAL_FILE_NAME}, 
+    #{STORED_FILE_NAME}, 
+    #{FILE_SIZE}, 
+    #{CREA_ID}
+    ) 
+    ]]>
+	</insert>
+	<select id="selectFileList" parameterType="hashmap"
+		resultType="hashmap">
+	<![CDATA[ 
+	SELECT 
+	BOARD_TITLE, 
+	ORIGINAL_FILE_NAME, 
+	STORED_FILE_NAME,
+	ROUND(FILE_SIZE/1024,1) AS FILE_SIZE
+	FROM 
+	board_file 
+	WHERE 
+	BOARD_TITLE = #{title}
+	AND
+	DEL_GB = 'N' 
+	]]>
+	</select>
+
+	<select id="detailBoard" resultType="hashmap">
+        <![CDATA[
+            SELECT
+                IDX,
+                TITLE,
+                CONTENTS,
+                AREA,
+                TYPE,
+                
+                PERFORMTIME,
+                PERFORMDATE,
+                PERFORMLOCATION,
+                HIT_CNT,
+                CREA_ID,
+                CREA_DATE
+            FROM
+                one_board
+            WHERE
+                IDX = #{ idx}
+        ]]>
+	</select>
+
+	<update id="updateHitBoard">
+        <![CDATA[
+            UPDATE
+                one_board
+            SET
+                HIT_CNT = HIT_CNT + 1
+            WHERE
+                IDX = #{ idx}
+        ]]>
+	</update>
+	<update id="updateBoard" parameterType="hashmap">
+        <![CDATA[
+            UPDATE
+                one_board
+            SET
+                TITLE = #{ TITLE},
+                CONTENTS = #{ CONTENTS},
+                AREA= #{ AREA},
+                TYPE= #{ TYPE},
+                PERFORMTIME= #{ PERFORMTIME},
+                PERFORMDATE= #{ PERFORMDATE},
+                PERFORMLOCATION= #{ PERFORMLOCATION}
+            WHERE
+                IDX = #{ IDX}
+                
+        ]]>
+	</update>
+
+
+	<update id="deleteBoard">
+        <![CDATA[
+            UPDATE
+                one_board
+            SET
+                DEL_CHK = 'Y'
+            WHERE
+                IDX = #{ idx}
+        ]]>
+	</update>
+	<insert id="insertReply" parameterType="hashmap">
+        <![CDATA[
+            INSERT INTO reply_board
+            (
+            	IDX,
+                ID,              
+                CHK,
+                SUBJECT,
+                TITLE,
+                CONTENT,
+                BOARDDATE
+            )
+            VALUES
+            (
+            	#{ idx},
+                #{ id},       
+                'N',
+                #{ subject},
+                #{ title},
+                #{ content},
+               
+                SYSDATE() 
+            )
+        ]]>
+	</insert>
+	<select id="viewBoardReplydetail" resultType="hashmap"
+		parameterType="hashmap">
+        <![CDATA[
+            SELECT
+            	COUNT,
+            	IDX,
+            	ID,              
+                CHK,
+                SUBJECT,
+                TITLE,
+                CONTENT,
+             
+                BOARDDATE
+            FROM
+                reply_board
+           WHERE
+                CHK = 'N'
+                AND
+               	TITLE = #{ title}
+               	ORDER BY COUNT desc
+           
+                
+          
+        ]]>
+	</select>
+	<select id="detailReply" resultType="hashmap">
+        <![CDATA[
+            SELECT
+                COUNT,
+                IDX,
+            	ID,              
+                CHK,
+                SUBJECT,
+                TITLE,
+                CONTENT,
+          
+                BOARDDATE
+            FROM
+                reply_board
+            WHERE
+                COUNT = #{ count}
+        ]]>
+	</select>
+
+	<update id="updateReply" parameterType="hashmap">
+        <![CDATA[
+            UPDATE
+                reply_board
+            SET
+                SUBJECT = #{ subject},
+                CONTENT = #{ content}
+            WHERE
+                COUNT = #{ count}
+        ]]>
+	</update>
+
+	<update id="deleteReply" parameterType="hashmap">
+        <![CDATA[
+            UPDATE
+                reply_board
+            SET
+                CHK='Y'
+            WHERE
+                COUNT = #{ count}
+                
+        ]]>
+	</update>
+	<select id="detailReservation" resultType="hashmap">
+        <![CDATA[
+            SELECT
+                IDX,
+                TITLE,                
+                AREA,
+                TYPE,                
+                PERFORMTIME,
+                PERFORMDATE,
+                PERFORMLOCATION,
+                CREA_ID
+             
+            FROM
+                one_board
+            WHERE
+                TITLE = #{ title}
+        ]]>
+	</select>
+	<insert id="insertReservation" parameterType="hashmap">
+        <![CDATA[
+            INSERT INTO reservation_board
+            (
+            		
+                id,
+                name,
+                area,
+                subject,
+                performtime,
+                performdate,
+                performlocation,
+                type,
+                phone,
+                card,
+                chk,
+                date
+            )
+            VALUES
+            (
+                #{ id},
+                #{ name},
+                #{ area},
+                #{ subject},          
+                #{ performtime},
+                #{ performdate},
+                #{ performlocation},
+              	#{ type},
+                #{ phone},
+                #{ card},
+                'N',
+                SYSDATE()
+            )
+        ]]>
+	</insert>
+	<update id="deleteReservation">
+        <![CDATA[
+            UPDATE
+                reservation_board
+            SET
+                chk = 'Y'
+            WHERE
+                num = #{ num}
+        ]]>
+	</update>
+
+
+</mapper>
+
+
